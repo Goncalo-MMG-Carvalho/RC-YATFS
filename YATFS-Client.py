@@ -28,7 +28,7 @@ def main():
     cs.bind(('', 2048))
 
     #file open
-    file = open("./" + fileName, 'wb')
+    file = open("./clientFiles/" + fileName, 'wb')
     offset = 0
 
     while True:
