@@ -36,7 +36,8 @@ def main():
         req = pickle.dumps(request)
         cs.sendto(req, serverAddressPort)
 
-        bufferSize = sys.getsizeof(int) + sys.getsizeof(int) + chunk
+        # Status reply + number of bytes to receive + bytes
+        bufferSize = sys.getsizeof(int) + sys.getsizeof(int) + chunk  # maybe + 1
 
         if waitForReply(cs):
             reply = cs.recvfrom(bufferSize)
@@ -44,6 +45,9 @@ def main():
             if reply[0] == 0:
                 offset += reply[1]
                 file.write(reply[2])
+
+                if reply[1] < chunk:
+                    break
 
             elif reply[0] == 1:
                 print("Error: " + reply[0] + ", file does not exist")
@@ -57,18 +61,14 @@ def main():
                 print("Error: " + reply[0] + ", unknown error")
                 break
 
+    close(file)
+
+    #send close connection request so server can listen to other clients
+
+
+
 
     """
-        create socket sc and bind it to some UDP port
-        open local file for writing
-        offset = 0
-        while TRUE:
-        prepare request with fileName and offset; use pickle to serialize it
-        send the request to (host_of_server, portSP)
-        wait for reply; if reply does not arrive, repeat request
-        write byte chunk received to file
         if EOF 
         break
-        else 
-        offset = offset + size
     """

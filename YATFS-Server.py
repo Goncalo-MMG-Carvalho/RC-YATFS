@@ -1,6 +1,9 @@
 import random
+import sys
 from socket import *
 import pickle
+
+serverName = "127.0.0.1"
 
 
 def serverReply(msg, sock, address):
@@ -11,6 +14,15 @@ def serverReply(msg, sock, address):
     if rand >= 3:
         sock.sendto(msg, address)
     return
+
+def main():
+    if len(sys.argv) != 2:
+        print("Wrong number of arguments.")
+        sys.exit(6969)
+
+    portSP = sys.argv[1]
+
+
 
 
 """
@@ -34,3 +46,5 @@ def serverReply(msg, sock, address):
     noBytes = request[2]
     print(f'file= {fileName},offset={offset}, noBytes={noBytes}')
 """
+
+main()
