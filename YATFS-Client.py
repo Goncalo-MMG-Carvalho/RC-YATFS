@@ -56,25 +56,25 @@ def main():
                 print("Received " + str(reply[1]) + " bytes.")
 
                 if reply[1] < chunk:
+                    print("File transfer complete.")
+                    print("Offset: ", offset)
                     break
 
             elif reply[0] == 1:
-                print("Error: " + reply[0] + ", file does not exist")
+                print("Error: " + str(reply[0]) + ", file does not exist.")
                 break
 
             elif reply[0] == 2:
-                print("Error: " + reply[0] + ", offset is invalid")
+                print("Error: " + str(reply[0]) + ", offset is invalid.")
                 break
 
             else:
-                print("Error: " + reply[0] + ", unknown error")
+                print("Error: " + str(reply[0]) + ", unknown error.")
                 break
         else:
             print("Timeout")
             print("Offset: " + str(offset))
             break
-
-    print("File received successfully")
 
     file.close()
 

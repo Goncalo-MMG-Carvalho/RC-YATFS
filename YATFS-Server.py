@@ -44,22 +44,25 @@ def main():
         offset = tupleLine[1]
         chunk = tupleLine[2]
 
-        print("Received request for file " + fileName + " with offset " + str(offset) + " and chunk " + str(chunk))
+        #print("Received request for file " + fileName + " with offset " + str(offset) + " and chunk " + str(chunk))
 
         size = 0
 
         try:
             size = os.path.getsize("./" + fileName)
+            print("Size = ", size)
 
         except OSError:
             print("File requested does not exists or is inaccessible.")
             ss.sendto(pickle.dumps((STATUS_FILE_NOT_FOUND, 0, 0)), clientAddr)
             continue
 
-        if size < offset + 1:
+        if size <= offset:
             print("Offset is invalid.")
             ss.sendto(pickle.dumps((STATUS_INVALID_OFFSET, 0, 0)), clientAddr)
             continue
+
+
 
         file = open("./" + fileName, 'rb')
         file.seek(offset)
@@ -68,11 +71,11 @@ def main():
         noBytes = len(data)
 
         msg = pickle.dumps((STATUS_OK, noBytes, data))
-        # ss.sendto(msg, clientAddr)
+        ss.sendto(msg, clientAddr)
 
-        serverReply(pickle.dumps((STATUS_OK, noBytes, data)), ss, clientAddr)
+        #serverReply(pickle.dumps((STATUS_OK, noBytes, data)), ss, clientAddr)
 
-        print("Sent " + str(noBytes) + " bytes.")
+        #print("Sent " + str(noBytes) + " bytes.")
         file.close()
 
 
