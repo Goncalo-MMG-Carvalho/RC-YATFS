@@ -2,7 +2,7 @@ from socket import *
 import pickle
 import select
 import sys
-
+import time
 
 # bufferSize = 1024
 
@@ -36,6 +36,10 @@ def main():
     file = open("./clientFiles/" + fileName, 'wb')
     offset = 0
 
+    endTime = 0
+    startTime = time.time()  # start timer
+
+
     while True:
         request = (fileName, offset, chunk)
         req = pickle.dumps(request)
@@ -57,6 +61,7 @@ def main():
                 print("Received " + str(reply[1]) + " bytes.")
 
                 if reply[1] < chunk:
+                    endTime = time.time()  # end timer
                     print("File transfer complete.")
                     print("Offset: ", offset)
                     break
@@ -66,6 +71,7 @@ def main():
                 break
 
             elif reply[0] == 2:
+                endTime = time.time()  # end timer
                 print("Error: " + str(reply[0]) + ", offset is invalid.")
                 print("File transfer complete.")
                 break
@@ -80,6 +86,10 @@ def main():
             break
 
     file.close()
+
+    # Transfer Rate in kB/s, assuming 20 MB file
+    transferRate = (20 * 1024) / (endTime - startTime)
+
 
 
 main()
