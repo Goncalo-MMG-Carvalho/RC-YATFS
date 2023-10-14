@@ -20,6 +20,7 @@ def serverReply(msg, sock, address):
         sock.sendto(msg, address)
     return
 
+
 def main():
     if len(sys.argv) != 2:
         print("Wrong number of arguments.")
@@ -30,17 +31,17 @@ def main():
     ss = socket(AF_INET, SOCK_DGRAM)
     ss.bind((serverName, portSP))
 
-    bufferSize = 120 + sys.getsizeof(int) * 2   # a file name and 2 ints
+    bufferSize = 120 + sys.getsizeof(int) * 2  # a file name and 2 ints
 
     while True:
 
         line, clientAddr = ss.recvfrom(bufferSize)
-        arrLine = pickle.loads(line)  #(fileName, offset, chunk)
+        arrLine = pickle.loads(line)  # (fileName, offset, chunk)
 
         fileName = arrLine[0]
         offset = arrLine[1]
         chunk = arrLine[2]
-
+        size = 0
 
         try:
             size = os.path.getsize("./" + fileName)
@@ -48,13 +49,24 @@ def main():
         except OSError:
             print("File requested does not exists or is inaccessible.")
             ss.sendto(pickle.dumps((STATUS_FILE_NOT_FOUND, 0, 0)), clientAddr)
+            continue
 
-        if(size < offset):
+        if size < offset + 1:
             print("Offset is invalid.")
             ss.sendto(pickle.dumps((STATUS_INVALID_OFFSET, 0, 0)), clientAddr)
+            continue
 
         file = open("./" + fileName, 'rb')
         file.seek(offset)
+
+        data = file.read(chunk)
+        noBytes = data.__sizeof__()
+        ss.sendto(pickle.dumps((STATUS_OK, noBytes, data)), clientAddr)
+
+        # TODO remove comment
+        # serverReply(pickle.dumps((STATUS_OK, noBytes, data)), sc, clientAddr)
+
+        close(file)
 
 
 """
