@@ -1,9 +1,14 @@
+import os
 import random
 import sys
 from socket import *
 import pickle
 
 serverName = "127.0.0.1"
+
+STATUS_OK = 0
+STATUS_FILE_NOT_FOUND = 1
+STATUS_INVALID_OFFSET = 2
 
 
 def serverReply(msg, sock, address):
@@ -20,9 +25,36 @@ def main():
         print("Wrong number of arguments.")
         sys.exit(6969)
 
-    portSP = sys.argv[1]
+    portSP = int(sys.argv[1])
+
+    ss = socket(AF_INET, SOCK_DGRAM)
+    ss.bind((serverName, portSP))
+
+    bufferSize = 120 + sys.getsizeof(int) * 2   # a file name and 2 ints
+
+    while True:
+
+        line, clientAddr = ss.recvfrom(bufferSize)
+        arrLine = pickle.loads(line)  #(fileName, offset, chunk)
+
+        fileName = arrLine[0]
+        offset = arrLine[1]
+        chunk = arrLine[2]
 
 
+        try:
+            size = os.path.getsize("./" + fileName)
+
+        except OSError:
+            print("File requested does not exists or is inaccessible.")
+            ss.sendto(pickle.dumps((STATUS_FILE_NOT_FOUND, 0, 0)), clientAddr)
+
+        if(size < offset):
+            print("Offset is invalid.")
+            ss.sendto(pickle.dumps((STATUS_INVALID_OFFSET, 0, 0)), clientAddr)
+
+        file = open("./" + fileName, 'rb')
+        file.seek(offset)
 
 
 """
