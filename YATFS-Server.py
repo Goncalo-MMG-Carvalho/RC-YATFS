@@ -31,16 +31,21 @@ def main():
     ss = socket(AF_INET, SOCK_DGRAM)
     ss.bind((serverName, portSP))
 
+    print("Server is Listening")
+
     bufferSize = 120 + sys.getsizeof(int) * 2  # a file name and 2 ints
 
     while True:
 
         line, clientAddr = ss.recvfrom(bufferSize)
-        arrLine = pickle.loads(line)  # (fileName, offset, chunk)
+        tupleLine = pickle.loads(line)  # (fileName, offset, chunk)
 
-        fileName = arrLine[0]
-        offset = arrLine[1]
-        chunk = arrLine[2]
+        fileName = tupleLine[0]
+        offset = tupleLine[1]
+        chunk = tupleLine[2]
+
+        print("Received request for file " + fileName + " with offset " + str(offset) + " and chunk " + str(chunk))
+
         size = 0
 
         try:
@@ -60,13 +65,15 @@ def main():
         file.seek(offset)
 
         data = file.read(chunk)
-        noBytes = data.__sizeof__()
-        ss.sendto(pickle.dumps((STATUS_OK, noBytes, data)), clientAddr)
+        noBytes = len(data)
 
-        # TODO remove comment
-        # serverReply(pickle.dumps((STATUS_OK, noBytes, data)), sc, clientAddr)
+        msg = pickle.dumps((STATUS_OK, noBytes, data))
+        # ss.sendto(msg, clientAddr)
 
-        close(file)
+        serverReply(pickle.dumps((STATUS_OK, noBytes, data)), ss, clientAddr)
+
+        print("Sent " + str(noBytes) + " bytes.")
+        file.close()
 
 
 """
