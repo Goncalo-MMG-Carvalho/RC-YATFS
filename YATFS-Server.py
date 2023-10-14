@@ -44,9 +44,9 @@ def main():
         offset = tupleLine[1]
         chunk = tupleLine[2]
 
-        #print("Received request for file " + fileName + " with offset " + str(offset) + " and chunk " + str(chunk))
+        print("Received request for file " + fileName + " with offset " + str(offset) + " and chunk " + str(chunk))
 
-        size = 0
+        size = 0  # just to initialize it
 
         try:
             size = os.path.getsize("./" + fileName)
@@ -75,7 +75,7 @@ def main():
 
         #serverReply(pickle.dumps((STATUS_OK, noBytes, data)), ss, clientAddr)
 
-        #print("Sent " + str(noBytes) + " bytes.")
+        print("Sent " + str(noBytes) + " bytes.")
         file.close()
 
 

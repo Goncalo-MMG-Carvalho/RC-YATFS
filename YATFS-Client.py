@@ -49,6 +49,7 @@ def main():
         if waitForReply(cs):
             reply, trash = cs.recvfrom(bufferSize)
             reply = pickle.loads(reply)
+
             if reply[0] == 0:
                 offset += reply[1]
                 file.write(reply[2])
@@ -66,10 +67,12 @@ def main():
 
             elif reply[0] == 2:
                 print("Error: " + str(reply[0]) + ", offset is invalid.")
+                print("File transfer complete.")
                 break
 
             else:
                 print("Error: " + str(reply[0]) + ", unknown error.")
+                print(reply)
                 break
         else:
             print("Timeout")
