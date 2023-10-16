@@ -4,7 +4,8 @@ import select
 import sys
 import time
 
-# bufferSize = 1024
+CLIENT_FILES_DIR = "./clientFiles/"
+
 
 def waitForReply(uSocket):
     rx, tx, er = select.select([uSocket], [], [], 1)
@@ -21,31 +22,31 @@ def main():
         print("Wrong number of arguments.")
         sys.exit(6969)
 
-    serverAddressPort = (sys.argv[1], int(sys.argv[2]))
+    portSP = int(sys.argv[2])
+    serverAddressPort = (sys.argv[1], portSP)
     fileName = sys.argv[3]
     chunk = int(sys.argv[4])
 
-    print("Server address: " + sys.argv[1])
-    print("Server port: " + sys.argv[2])
-    print("File name: " + sys.argv[3])
-    print("Chunk size: " + sys.argv[4])
+    if portSP < 1024 or portSP > 65535:
+        print("Incorrect port number.")
+        sys.exit(69420)
+
+    print("Client is running.")
 
     cs = socket(AF_INET, SOCK_DGRAM)
 
     # file open
-    file = open("./clientFiles/" + fileName, 'wb')
+    file = open(CLIENT_FILES_DIR + fileName, 'wb')
+
     offset = 0
 
     endTime = 0
     startTime = time.time()  # start timer
 
-
     while True:
         request = (fileName, offset, chunk)
         req = pickle.dumps(request)
         cs.sendto(req, serverAddressPort)
-
-        print("Sent request for file " + fileName + " with offset " + str(offset) + " and chunk " + str(chunk))
 
         # Status reply + number of bytes to receive + bytes
         bufferSize = sys.getsizeof(int) + sys.getsizeof(int) + chunk  # maybe + 1
@@ -58,8 +59,6 @@ def main():
                 offset += reply[1]
                 file.write(reply[2])
 
-                print("Received " + str(reply[1]) + " bytes.")
-
                 if reply[1] < chunk:
                     endTime = time.time()  # end timer
                     print("File transfer complete.")
@@ -71,25 +70,23 @@ def main():
                 break
 
             elif reply[0] == 2:
-                endTime = time.time()  # end timer
                 print("Error: " + str(reply[0]) + ", offset is invalid.")
-                print("File transfer complete.")
                 break
 
             else:
                 print("Error: " + str(reply[0]) + ", unknown error.")
-                print(reply)
+                print("Error description: ", str(reply[1]))
                 break
-        else:
-            print("Timeout")
-            print("Offset: " + str(offset))
-            break
 
     file.close()
+    cs.close()
 
-    # Transfer Rate in kB/s, assuming 20 MB file
-    transferRate = (20 * 1024) / (endTime - startTime)
+    # Transfer Rate in KB/s
+    transferRate = (offset/1024) / (endTime - startTime)
+
+    print("Transfer Rate = ", transferRate, " KB/s")
+    #print("Time = ", endTime - startTime, " s")
 
 
-
-main()
+if __name__ == "__main__":
+    main()
