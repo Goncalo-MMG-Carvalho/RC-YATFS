@@ -17,8 +17,10 @@ def serverReply(msg, sock, address):
     # msg is a byte array ready to be sent
     # Generate random number in the range of 0 to 10
     rand = random.randint(0, 10)
+
     # If rand is less is than 3, do not respond
-    if rand >= 3:  # represents less than 40% packet loss, it represents 4/11 packet loss
+    # IMPORTANT: represents less than 40% packet loss, it represents 4/11 packet loss
+    if rand >= 3:
         sock.sendto(msg, address)
     return
 
@@ -50,13 +52,10 @@ def main():
         offset = tupleLine[1]
         chunk = tupleLine[2]
 
-        #print("Received request for file " + fileName + " with offset " + str(offset) + " and chunk " + str(chunk))
-
         size = 0  # just to initialize it
 
         try:
             size = os.path.getsize(SERVER_FILES_DIR + fileName)
-            #print("Size = ", size)
 
         except OSError:
             print("File requested does not exists or is inaccessible.")
@@ -77,11 +76,9 @@ def main():
         noBytes = len(data)
 
         msg = pickle.dumps((STATUS_OK, noBytes, data))
-        #ss.sendto(msg, clientAddr)
 
         serverReply(msg, ss, clientAddr)
 
-        #print("Sent " + str(noBytes) + " bytes.")
         file.close()
 
 
