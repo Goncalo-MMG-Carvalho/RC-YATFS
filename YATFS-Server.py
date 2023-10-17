@@ -59,12 +59,14 @@ def main():
 
         except OSError:
             print("File requested does not exists or is inaccessible.")
-            ss.sendto(pickle.dumps((STATUS_FILE_NOT_FOUND, 0, 0)), clientAddr)
+            #ss.sendto(pickle.dumps((STATUS_FILE_NOT_FOUND, 0, 0)), clientAddr)
+            serverReply(pickle.dumps((STATUS_FILE_NOT_FOUND, 0, 0)), ss, clientAddr)
             continue
 
         if size < offset:
             print("Offset is invalid.")
-            ss.sendto(pickle.dumps((STATUS_INVALID_OFFSET, 0, 0)), clientAddr)
+            #ss.sendto(pickle.dumps((STATUS_INVALID_OFFSET, 0, 0)), clientAddr)
+            serverReply(pickle.dumps((STATUS_INVALID_OFFSET, 0, 0)), ss, clientAddr)
             continue
 
 
